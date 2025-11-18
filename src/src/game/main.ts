@@ -2,12 +2,10 @@ import Phaser, { AUTO } from 'phaser';
 import { Boot } from '@/game/scenes/Boot';
 import { Preloader } from '@/game/scenes/Preloader';
 import { Game } from '@/game/scenes/Game';
-import { loadControlConfig } from '@/config/ControlSettings';
-
-loadControlConfig();
 
 /**
  * Configuración principal del juego Phaser.
+ * Define tamaño, escenas, física y escalado.
  */
 const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
@@ -24,23 +22,20 @@ const config: Phaser.Types.Core.GameConfig = {
         default: 'arcade',
         arcade: { debug: false }
     },
-    scale: {
+    scale:{
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
 };
 
+
 /**
- * Inicializa la instancia del juego y la guarda globalmente
- * para que Vue pueda reproducir sonidos en GameButton.vue
+ * Inicializa y retorna una instancia de Phaser.Game con el contenedor especificado.
+ * @param parent ID del elemento HTML donde se renderiza el juego.
+ * @returns Instancia de Phaser.Game
  */
 const StartGame = (parent: string) => {
-
-    const instance = new Phaser.Game({ ...config, parent });
-
-    (window as any).phaserGameInstance = instance;
-
-    return instance;
-};
+    return new Phaser.Game({ ...config, parent });
+}
 
 export default StartGame;

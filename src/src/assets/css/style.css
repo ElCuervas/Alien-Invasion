@@ -29,7 +29,6 @@ body {
     display: flex;
     justify-content: left;
     align-items: center;
-    margin: 10vh;
 }
 h1 {
     font-size: 10vh;

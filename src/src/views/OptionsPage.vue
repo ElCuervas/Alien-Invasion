@@ -2,7 +2,6 @@
   <div class="options-box">
     <h1>Opciones</h1>
 
-    <!-- Control de volumen de música -->
     <div class="option-row">
       <span>Música</span>
       <input
@@ -15,7 +14,6 @@
       />
     </div>
 
-    <!-- Control de volumen de efectos -->
     <div class="option-row">
       <span>Efectos de sonido</span>
       <input
@@ -27,51 +25,45 @@
         @input="updateSettings"
       />
     </div>
-
     <div class="buttons">
-      <!-- Nuevo botón para configurar controles -->
-      <GameButton @click="goToKeybinds" class="config-button">
-        Configurar teclado
-      </GameButton>
-
-      <GameButton @click="MainMenu" class="exit-button">
-        Salir
-      </GameButton>
+      <GameButton class="config-button">Configurar teclado</GameButton>
+      <GameButton @click="MainMenu" class="exit-button">Salir</GameButton>
     </div>
   </div>
+
 </template>
 
 <script setup lang="ts">
 /**
- * OptionsPage
- * Permite modificar los volúmenes globales (música y efectos)
- * y acceder a la página de configuración de controles.
+ * Vista OptionsPage
+ * Permite al usuario modificar las opciones de audio (música y efectos de sonido)
+ * y navegar de regreso al menú principal.
  */
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import GameButton from '../components/GameButton.vue';
+import { getAudioSettings, setAudioSettings } from '@/config/AudioSettings';
 
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import GameButton from "../components/GameButton.vue";
-
-import {
-  getAudioSettings,
-  setAudioSettings,
-} from "@/config/AudioSettings";
-
-// Router para navegación
+/** Instancia del router para navegación */
 const router = useRouter();
 
-// Variables reactivas vinculadas a los sliders
+/** Volumen de la música (0.0 a 1.0) */
 const musicVolume = ref(0.5);
+/** Volumen de los efectos de sonido (0.0 a 1.0) */
 const sfxVolume = ref(0.5);
 
-// Cargar valores actuales al montar la página
+/**
+ * Al montar, carga los valores actuales de configuración de audio.
+ */
 onMounted(() => {
   const settings = getAudioSettings();
   musicVolume.value = settings.musicVolume;
   sfxVolume.value = settings.sfxVolume;
 });
 
-// Actualiza los valores globales de audio
+/**
+ * Actualiza la configuración global de audio con los valores actuales.
+ */
 function updateSettings() {
   setAudioSettings({
     musicVolume: musicVolume.value,
@@ -79,14 +71,11 @@ function updateSettings() {
   });
 }
 
-// Volver al menú
+/**
+ * Navega al menú principal.
+ */
 function MainMenu() {
-  router.push({ name: "Home" });
-}
-
-// navegación a configuración de controles
-function goToKeybinds() {
-  router.push({ name: "Keybinds" });
+  router.push({ name: 'Home' });
 }
 </script>
 
@@ -108,7 +97,7 @@ function goToKeybinds() {
   align-items: center;
   justify-content: flex-start;
   box-sizing: border-box;
-  margin-top: -3vh;
+  margin-top: -3vh; 
 }
 
 .options-box h1 {
@@ -152,7 +141,7 @@ input[type='range']::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2vh;
+  margin-top: 2vh; 
   gap: 2.4vh;
 }
 
@@ -167,3 +156,5 @@ input[type='range']::-webkit-slider-thumb {
   margin-bottom: 4vh;
 }
 </style>
+
+

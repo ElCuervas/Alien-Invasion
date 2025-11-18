@@ -42,10 +42,6 @@ export class Game extends Scene {
   /** Referencia a la música principal del juego. */
   private music: Phaser.Sound.BaseSound | null = null;
 
-  /** Handlers registrados en EventBus (para poder desregistrarlos en shutdown). */
-  private handleGamePause!: (payload: { paused: boolean }) => void;
-  private handleGameResume!: (payload: { paused: boolean }) => void;
-
   constructor() {
     super('Game');
   }
@@ -101,24 +97,12 @@ export class Game extends Scene {
 
     // Listener para selección de carta de mejora
     EventBus.on('deck:card:selected', this.onDeckCardSelected, this)
-    // Registrar handlers nombrados para poder removerlos cuando la escena se cierre.
-    this.handleGamePause = (_payload: { paused: boolean }) => {
-      try {
-        if ((this.scene as any)?.manager) this.scene.pause();
-      } catch (e) {
-        // Silenciar errores si la escena ya no tiene manager
-      }
-    };
-    this.handleGameResume = (_payload: { paused: boolean }) => {
-      try {
-        if ((this.scene as any)?.manager) this.scene.resume();
-      } catch (e) {
-        // Silenciar errores si la escena ya no tiene manager
-      }
-    };
-
-    EventBus.on('game:pause', this.handleGamePause, this);
-    EventBus.on('game:resume', this.handleGameResume, this);
+    EventBus.on('game:pause', (_payload: { paused: boolean }) => {
+      this.scene.pause();
+    });
+    EventBus.on('game:resume', (_payload: { paused: boolean }) => {
+      this.scene.resume();
+    });
   }
 
   // Maneja la selección de una carta de mejora desde el DeckCards.vue
@@ -262,8 +246,6 @@ export class Game extends Scene {
   // Limpieza de listeners al finalizar la escena
   shutdown(): void {
     EventBus.off('deck:card:selected', this.onDeckCardSelected, this);
-    EventBus.off('game:pause', this.handleGamePause, this);
-    EventBus.off('game:resume', this.handleGameResume, this);
   }
 
   /**

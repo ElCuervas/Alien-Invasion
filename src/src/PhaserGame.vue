@@ -22,11 +22,6 @@ const emit = defineEmits(['current-active-scene']);
  */
 onMounted(() => {
     game.value = StartGame('game-container');
-
-    // Guardamos la instancia globalmente de forma segura
-    (window as any).phaserGameInstance = game.value;
-    (game.value as any).isDestroyed = false;
-
     EventBus.on('current-scene-ready', (scene_instance: Phaser.Scene) => {
         emit('current-active-scene', scene_instance);
         scene.value = scene_instance;
@@ -37,21 +32,10 @@ onMounted(() => {
  * Al desmontar, destruye la instancia del juego para liberar recursos.
  */
 onUnmounted(() => {
-    try {
-        if (game.value) {
-            // Marca la instancia como destruida para evitar que GameButton la use
-            (game.value as any).isDestroyed = true;
-
-            // Destruye Phaser sin errores
-            game.value.destroy(true);
-            game.value = null;
-        }
-
-        // Limpia la referencia global
-        (window as any).phaserGameInstance = null;
-
-    } catch (err) {
-        console.warn("⚠ Error al destruir Phaser:", err);
+    if (game.value)
+    {
+        game.value.destroy(true);
+        game.value = null;
     }
 });
 

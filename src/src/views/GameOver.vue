@@ -14,15 +14,19 @@
 /**
  * Vista GameOver
  * Muestra la pantalla de fin de partida, permite reiniciar el juego o guardar el puntaje.
- * Gestiona el puntaje, tiempo de juego y el envío al backend.
+ * Gestiona la obtención de datos del usuario, puntaje y tiempo de juego, y el envío al backend.
  */
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import GameButton from "../components/GameButton.vue";
+import { sendGameSession } from "@/config/GameSession";
+import { getAuthenticatedUser } from "@/config/UserSession"; 
+
 /** Instancia de la ruta actual */
 const route = useRoute();
 /** Instancia del router para navegación */
 const router = useRouter();
+
 /** Puntaje final obtenido por el jugador */
 const score = ref<number | null>(null);
 /** Tiempo total jugado en segundos */
@@ -36,9 +40,12 @@ const currentUser = ref<string | null>(null);
 let saving = false;
 
 /**
- * Hook de montaje: carga puntaje y tiempo desde la query.
+ * Hook de montaje: carga datos de usuario, puntaje y tiempo desde la query.
  */
 onMounted(async () => {
+  // Obtener usuario autenticado desde el backend de cuenta
+  currentUser.value = await getAuthenticatedUser();
+
   // Leer score y tiempo desde la query
   const rawScore = route.query.score;
   const rawTime = route.query.time;
@@ -66,34 +73,36 @@ async function saveAndReturn(): Promise<void> {
 
   const name = currentUser.value || playerName.value.trim() || "Jugador";
 
-  const api = (window as any).gameApi;
-
-  // Enviar sesión usando la API integrada si está disponible
-  if (api && typeof api.updateSession === 'function' && score.value !== null) {
+  if (score.value !== null) {
     try {
-      await api.updateSession({
-        gameSessionDurationSeconds: playTime.value,
-        scoreAchieved: score.value,
+      const res = await fetch("http://localhost:3000/api/ranking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          player: name,
+          score: score.value,
+        }),
       });
-      console.log('Sesión enviada vía GamePlatformAPI');
+
+      if (res.ok) console.log("Puntaje guardado para:", name);
+      else console.error("Error guardando puntaje:", res.statusText);
+
+      // Enviar sesión adicional (opcional)
+      try {
+        await sendGameSession({
+          playerId: name,
+          score: score.value,
+          playTime: playTime.value,
+        });
+      } catch (err) {
+        console.warn("No se pudo registrar la sesión:", err);
+      }
     } catch (err) {
-      console.warn('Fallo al enviar sesión vía GamePlatformAPI:', err);
-    }
-  } else {
-    console.warn('No hay GamePlatformAPI disponible; puntaje no enviado al servidor. Se usará respaldo local.');
-    // Guardar localmente para mostrar en ranking local
-    try {
-      const raw = localStorage.getItem('game-ranking');
-      const arr = raw ? JSON.parse(raw) : [];
-      arr.push({ player: name, score: score.value });
-      arr.sort((a: any, b: any) => b.score - a.score);
-      localStorage.setItem('game-ranking', JSON.stringify(arr.slice(0, 10)));
-    } catch (e) {
-      console.error('No se pudo guardar el puntaje localmente:', e);
+      console.error("Error general al guardar puntaje:", err);
     }
   }
 
-  router.push({ name: 'Home' });
+  router.push({ name: "Home" });
   saving = false;
 }
 

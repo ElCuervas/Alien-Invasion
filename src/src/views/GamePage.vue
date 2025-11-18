@@ -1,23 +1,10 @@
 <template>
-  <div class="flex-vertical">
-    <span>V</span>
-    <span>I</span>
-    <span>D</span>
-    <span>A</span>
-  </div>
   <Bar class="bar-health" :value=health></Bar>
   <div id="game-root">
     <div id="game-container"></div>
     <h2 class="game-score">Score: <span class="score-number">{{ score }}</span></h2>
   </div>
   <Bar class="bar-exp" :value=exp></Bar>
-  <div class="flex-vertical">
-    <span>N</span>
-    <span>I</span>
-    <span>V</span>
-    <span>E</span>
-    <span>L</span>
-  </div>
   <DeckCards v-if="level > 1" :level="level" class="deck" />
   <!-- Menú de pausa -->
   <PauseMenu
@@ -170,10 +157,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .bar-health {
-  top: 2vh;
+  top: 20px;
+  left: -15vh;
 }
 .bar-exp {
-  top: 2vh;
+  top: 20px;
+  left: 15vh;
 }
 
 #game-root {
@@ -182,8 +171,8 @@ onBeforeUnmount(() => {
 
 .game-score {
   position: absolute;
-  right: 0vh;
-  top: 10vh;
+  right: -15vh;
+  top: 2vh;
   color: #FF0000;
   font-size: 2vh;
   margin: 0;
@@ -201,17 +190,4 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
 }
-.flex-vertical {
-  top: 2vh;
-  font-size: 4vh;
-  color: #FF0000;
-  display: flex;
-  flex-direction: column;
-  
-}
-.flex-vertical span {
-  line-height: 1;
-  margin-bottom: 4vh;
-}
-
 </style>

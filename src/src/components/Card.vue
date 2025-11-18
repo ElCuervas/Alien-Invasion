@@ -39,7 +39,6 @@ defineProps<{
   align-items: center;
   justify-content: center;
   backface-visibility: hidden;
-  font-size: 2vh;
   transition: 1s;
 }
 .card .front{

@@ -3,9 +3,7 @@ import MainMenu from '../views/MainMenu.vue';
 import GamePage from '../views/GamePage.vue';
 import OptionsPage from '../views/OptionsPage.vue';
 import GameOver from '../views/GameOver.vue';
-import Ranking from '@/views/RankingPage.vue';
-import KeybindsPage from "@/views/KeybindsPage.vue";
-import AccessDenied from '@/views/AccessDenied.vue';
+import Ranking from '../views/RankingPage.vue';
 
 /**
  * Arreglo de rutas para la navegación de la aplicación Vue.
@@ -17,8 +15,6 @@ const routes = [
   { path: '/options', name: 'Options', component: OptionsPage },
   { path: '/game-over', name: 'GameOver', component: GameOver },
   { path: '/ranking', name: 'Ranking', component: Ranking },
-  { path: "/keybinds", name: "Keybinds", component: KeybindsPage }, 
-  { path: "/access-denied", name: "AccessDenied", component: AccessDenied }
 ];
 
 /**

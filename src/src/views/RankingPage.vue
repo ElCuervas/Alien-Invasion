@@ -8,6 +8,7 @@
           <th>#</th>
           <th>Jugador</th>
           <th>Puntaje</th>
+          <th>Fecha</th>
         </tr>
       </thead>
       <tbody>
@@ -15,6 +16,7 @@
           <td>{{ index + 1 }}</td>
           <td>{{ item.player }}</td>
           <td>{{ item.score }}</td>
+          <td>{{ new Date(item.date).toLocaleString() }}</td>
         </tr>
       </tbody>
     </table>
@@ -45,36 +47,20 @@ interface ScoreEntry {
 /** Instancia del router para navegación */
 const router = useRouter();
 /** Lista reactiva de puntajes */
-  const scores = ref<ScoreEntry[]>([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+const scores = ref<ScoreEntry[]>([]);
 
 /**
  * Obtiene el ranking de puntajes desde el servidor backend.
  * @returns Array de ScoreEntry
  */
 async function fetchRankingFromServer(): Promise<ScoreEntry[]> {
-  const api = (window as any).gameApi;
   try {
-    loading.value = true;
-    error.value = null;
-    if (api && typeof api.getLeaderboard === 'function') {
-      const data = await api.getLeaderboard();
-      return data.map((it: any) => ({
-        player: it.username ?? 'Anon',
-        score: it.score ?? 0,
-      } as ScoreEntry));
-    }
-    // localStorage como respaldo.
-    console.warn('gameApi no disponible: usando ranking local');
-    const raw = localStorage.getItem('game-ranking');
-    return raw ? (JSON.parse(raw) as ScoreEntry[]) : [];
-  } catch (err: any) {
-    console.error('Error al leer ranking del servidor:', err);
-    error.value = err?.message || String(err);
+    const res = await fetch("http://localhost:3000/api/ranking");
+    if (!res.ok) throw new Error("Error al obtener ranking");
+    return await res.json();
+  } catch (err) {
+    console.error("Error al leer ranking del servidor:", err);
     return [];
-  } finally {
-    loading.value = false;
   }
 }
 

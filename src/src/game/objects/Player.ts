@@ -1,96 +1,92 @@
 import Phaser from "phaser";
 import { BulletP } from "@/game/objects/BulletP";
-import { getControlConfig } from "@/config/ControlSettings";
-import { getAudioSettings } from "@/config/AudioSettings";
 
 /**
- * Representa al jugador principal dentro del juego.
- *
- * Gestiona movimiento, disparos, experiencia, vida y controles personalizados.
- * También se encarga de reproducir efectos de sonido al disparar.
+ * Clase que representa al jugador en el juego.
+ * Hereda de Phaser.Physics.Arcade.Sprite y gestiona el movimiento, disparo y estadísticas del jugador.
  */
 export class Player extends Phaser.Physics.Arcade.Sprite {
-    bullets: Phaser.Physics.Arcade.Group | undefined;
-
-    health: number = 15;
-    health_all: number = 15;
-
-    exp: number = 0;
-    exp_all: number = 1000;
-
-    lastShotTime: number = 0;
-    cadence_bullet: number = 800;
-
-    speed: number = 250;
-    damage: number = 2;
-
-    keys:
-        | {
-              up: Phaser.Input.Keyboard.Key;
-              down: Phaser.Input.Keyboard.Key;
-              left: Phaser.Input.Keyboard.Key;
-              right: Phaser.Input.Keyboard.Key;
-              shoot: Phaser.Input.Keyboard.Key;
-          }
-        | undefined;
-
     /**
-     * Crea una nueva instancia del jugador.
-     *
-     * @param scene Escena de Phaser donde se crea el jugador.
-     * @param x Posición inicial en el eje X.
-     * @param y Posición inicial en el eje Y.
-     * @param texture Nombre de la textura asignada al sprite.
+     * Grupo de balas disparadas por el jugador.
      */
-    constructor(scene: Phaser.Scene, x: number, y: number, texture: string = "player") {
+    bullets: Phaser.Physics.Arcade.Group | undefined;
+    /**
+     * Vida actual del jugador.
+     */
+    health: number = 15;
+    /**
+     * Vida máxima del jugador.
+     */
+    health_all: number = 15;
+    /**
+     * Experiencia actual del jugador.
+     */
+    exp: number = 0;
+    /**
+     * Experiencia máxima para subir de nivel.
+     */
+    exp_all: number = 1000;
+    /**
+     * Tiempo del último disparo realizado.
+     */
+    lastShotTime: number = 0;
+    /**
+     * Cadencia de disparo en milisegundos.
+     */
+    cadence_bullet: number = 800;
+    /**
+     * Velocidad de movimiento del jugador.
+     */
+    speed: number = 250;
+    /**
+     * Daño que infligen las balas del jugador.
+     */
+    damage: number = 2;
+    /**
+     * Configuración de teclas para controlar el jugador.
+     */
+    wasd: { up: Phaser.Input.Keyboard.Key, down: Phaser.Input.Keyboard.Key, left: Phaser.Input.Keyboard.Key, right: Phaser.Input.Keyboard.Key, Shoot: Phaser.Input.Keyboard.Key } | undefined;
+    /**
+     * Crea una instancia de Player.
+     * @param scene Escena de Phaser donde se añade el jugador.
+     * @param x Posición X inicial.
+     * @param y Posición Y inicial.
+     * @param texture Nombre de la textura del sprite.
+     */
+    constructor(scene: Phaser.Scene, x: number, y: number, texture: string = 'player') {
         super(scene, x, y, texture);
-
         scene.add.existing(this);
         scene.physics.add.existing(this);
-
         this.setActive(true);
         this.setCollideWorldBounds(true);
 
+        //Balas
         this.bullets = scene.physics.add.group({
             classType: BulletP,
             runChildUpdate: true,
-            maxSize: 10,
+            maxSize: 10
         });
 
-        const cfg = getControlConfig();
 
-        if (scene.input && scene.input.keyboard) {
-            this.keys = scene.input.keyboard.addKeys({
-                up: cfg.moveUp,
-                down: cfg.moveDown,
-                left: cfg.moveLeft,
-                right: cfg.moveRight,
-                shoot: cfg.shoot
-            }) as any;
+        if (this.scene.input && this.scene.input.keyboard) {
+            this.wasd = this.scene.input.keyboard.addKeys({ up: 'W', left: 'A', down: 'S', right: 'D', Shoot: 'P' }) as any;
         }
     }
-
     /**
      * Actualiza el estado del jugador en cada frame.
-     *
-     * Maneja movimiento, límites verticales y detección de disparo.
-     *
+     * Gestiona el movimiento y el disparo.
      * @param delta Tiempo transcurrido desde el último frame.
      */
     update(delta: number) {
         let vx = 0;
         let vy = 0;
-
-        if (this.keys) {
-            if (this.keys.left.isDown) vx = -this.speed;
-            else if (this.keys.right.isDown) vx = this.speed;
-
-            if (this.keys.up.isDown) vy = -this.speed;
-            else if (this.keys.down.isDown) vy = this.speed;
+        if (this.wasd) {
+            if (this.wasd.left.isDown) vx = -this.speed;
+            else if (this.wasd.right.isDown) vx = this.speed;
+            if (this.wasd.up.isDown) vy = -this.speed;
+            else if (this.wasd.down.isDown) vy = this.speed;
         }
-
         const body = this.body as Phaser.Physics.Arcade.Body | null;
-
         if (body) {
             body.setVelocity(vx, vy);
         } else {
@@ -98,53 +94,44 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.x += vx * dt;
             this.y += vy * dt;
         }
+        const originY = (this.y as any).originY ?? 0.5;
 
-        const originY = (this as any).originY ?? 0.5;
+        //Bordes de Sprite
         const halfUp = this.displayHeight * originY;
         const halfDown = this.displayHeight * (1 - originY);
 
-        const minY = halfUp + this.scene.scale.height / 2;
-        const maxY = this.scene.scale.height - halfDown;
-
+        //Limitador de la posicion Y del Sprite
+        const minY = halfUp + (this.scene.scale.height as number) / 2;
+        const maxY = (this.scene.scale.height as number) - halfDown;
         this.y = Phaser.Math.Clamp(this.y, minY, maxY);
 
-        if (this.keys && Phaser.Input.Keyboard.JustDown(this.keys.shoot)) {
+        //Disparo con tecla P
+        if (this.wasd && Phaser.Input.Keyboard.JustDown(this.wasd.Shoot)) {
             this.ShootBullet();
         }
     }
 
+
+
+
+
+
     /**
-     * Ejecuta un disparo del jugador.
-     *
-     * Controla cadencia de tiro, genera una bala y reproduce sonido.
+     * Dispara una bala si la cadencia lo permite.
      */
     ShootBullet() {
         if (!this.bullets) return;
-
-        const now = this.scene.time.now;
+        const now = this.scene.time.now as number;
         if (now - this.lastShotTime < this.cadence_bullet) return;
-
         this.lastShotTime = now;
-
-        const bullet = this.bullets.get(
-            this.x,
-            this.y - this.displayHeight,
-            "bullet"
-        ) as BulletP | null;
-
+        const bullet = this.bullets.get(this.x, this.y - this.displayHeight, 'bullet') as BulletP | null;
         if (bullet) {
             bullet.fire(this.x, this.y - this.displayHeight / 2, -500);
         }
-
-        const { sfxVolume, muted } = getAudioSettings();
-        this.scene.sound.play("shootSFX", {
-            volume: muted ? 0 : sfxVolume
-        });
     }
 
     /**
-     * Modifica la velocidad de movimiento del jugador.
-     *
+     * Establece la velocidad de movimiento del jugador.
      * @param speed Nueva velocidad.
      */
     setSpeed(speed: number) {
@@ -152,18 +139,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     /**
-     * Devuelve el porcentaje actual de vida.
-     *
-     * @returns Número entre 0 y 100.
+     * Devuelve el porcentaje de vida actual del jugador.
+     * @returns Porcentaje de vida (0-100).
      */
     getPorcentageHealth(): number {
         return (this.health / this.health_all) * 100;
     }
 
     /**
-     * Devuelve el porcentaje actual de experiencia.
-     *
-     * @returns Número entre 0 y 100.
+     * Devuelve el porcentaje de experiencia actual del jugador.
+     * @returns Porcentaje de experiencia (0-100).
      */
     expPercentage(): number {
         return (this.exp / this.exp_all) * 100;

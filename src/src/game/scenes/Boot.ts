@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { getAudioSettings, onAudioSettingsChange } from '@/config/AudioSettings';
-import backgroundImg from '../../assets/Image/map.png';
+import backgroundImg from '@/assets/Image/map.png';
 
 /**
  * Escena inicial (Boot) del juego.

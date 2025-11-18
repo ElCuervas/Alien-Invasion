@@ -1,8 +1,8 @@
 import { GameObjects, Scene } from 'phaser';
-import { Player } from '../objects/Player';
-import { Enemy } from '../objects/Enemy';
-import { EventBus } from '../EventBus';
-import { Upgrade } from '../objects/Upgrade';
+import { Player } from '@/game/objects/Player';
+import { Enemy } from '@/game/objects/Enemy';
+import { EventBus } from '@/game/EventBus';
+import { Upgrade } from '@/game/objects/Upgrade';
 
 /**
  * Scene principal del juego donde se instancia el jugador, el enemigo,
@@ -27,6 +27,9 @@ export class Game extends Scene {
 
   /** Puntuación acumulada en la partida. */
   Score: number = 0;
+
+  /** Marca de tiempo (ms) cuando comenzó la partida, para calcular tiempo jugado. */
+  private startTime: number = 0;
 
   /** Instancia de las mejoras del jugador. */
   upgrade: Upgrade;
@@ -94,6 +97,9 @@ export class Game extends Scene {
 
     // Instancia de música
     this.playGameMusic();
+
+    // Registrar tiempo de inicio
+    this.startTime = Date.now();
 
 
     // Instancia de Upgrade
@@ -168,7 +174,9 @@ export class Game extends Scene {
           this.player.health -= 1;
           if (this.player.health <= 0) {
             EventBus.emit('game:finished', true);
-            EventBus.emit('game:over', this.Score || 0);
+            const elapsedMs = Date.now() - (this.startTime || Date.now());
+            const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
+            EventBus.emit('game:over', { score: this.Score || 0, playTimeSeconds: seconds });
           }
         });
       }

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BulletP } from "./BulletP";
+import { BulletP } from "@/game/objects/BulletP";
 import { getControlConfig } from "@/config/ControlSettings";
 import { getAudioSettings } from "@/config/AudioSettings";
 

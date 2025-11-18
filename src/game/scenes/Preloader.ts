@@ -1,14 +1,14 @@
 import { Scene } from 'phaser';
 
-import mainThemeSrc from '../../assets/Audio/arcade-beat-323176.mp3';
-import buttonSfxSrc from '../../assets/Audio/Click_UI.mp3';
-import shootSfxSrc from '../../assets/Audio/Laser_shoot.mp3';
+import mainThemeSrc from '@/assets/Audio/arcade-beat-323176.mp3';
+import buttonSfxSrc from '@/assets/Audio/Click_UI.mp3';
+import shootSfxSrc from '@/assets/Audio/Laser_shoot.mp3';
 
-import playerImg from '../../assets/Sprite/Player/player.png';
-import enemy1Img from '../../assets/Sprite/Enemy/enemy_1.png';
-import enemy2Img from '../../assets/Sprite/Enemy/enemy_2.png';
-import enemy3Img from '../../assets/Sprite/Enemy/enemy_3.png';
-import bulletImg from '../../assets/Sprite/Common/bullet.png';
+import playerImg from '@/assets/Sprite/Player/player.png';
+import enemy1Img from '@/assets/Sprite/Enemy/enemy_1.png';
+import enemy2Img from '@/assets/Sprite/Enemy/enemy_2.png';
+import enemy3Img from '@/assets/Sprite/Enemy/enemy_3.png';
+import bulletImg from '@/assets/Sprite/Common/bullet.png';
 
 /**
  * Escena de carga inicial del juego.

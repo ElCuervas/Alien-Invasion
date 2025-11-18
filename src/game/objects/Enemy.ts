@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { BulletP } from './BulletP'
+import { BulletP } from '@/game/objects/BulletP'
 
 /**
  * Enemigo del juego con diferentes patrones de movimiento y capacidad de

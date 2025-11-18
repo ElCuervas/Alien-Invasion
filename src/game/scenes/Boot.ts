@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { getAudioSettings, onAudioSettingsChange } from '@/config/AudioSettings';
+import backgroundImg from '../../assets/Image/map.png';
 
 /**
  * Escena inicial (Boot) del juego.
@@ -20,7 +21,7 @@ export class Boot extends Scene {
    * Carga aquí imágenes o assets imprescindibles para la pantalla de carga.
    */
   preload() {
-    this.load.image('background', 'src/assets/Image/map.png');
+    this.load.image('background', backgroundImg);
   }
 
   /**

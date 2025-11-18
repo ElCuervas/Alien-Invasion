@@ -76,6 +76,8 @@ function updateLevel(newLevel: number) {
 }
 /** Instancia del juego Phaser */
 let gameInstance: any;
+/** Handler para game:over (declarado en scope superior para poder removerlo) */
+let handleGameOver: (payload: any) => void = () => {};
 
 /**
  * Destruye la instancia actual del juego Phaser.
@@ -136,10 +138,25 @@ onMounted(() => {
   EventBus.on('player:exp', updateExp);
   EventBus.on('player:levelup', updateLevel);
 
-  EventBus.on('game:over', (finalScore: number) => {
+  // Handler nombrado para soportar payloads antiguos (number) y nuevos ({score, playTimeSeconds})
+  let handleGameOver: (payload: any) => void;
+  handleGameOver = (payload: any) => {
     destroyGameInstance();
-    router.push({ name: 'GameOver', query: { score: String(finalScore) } });
-  });
+    let s: number | null = null;
+    let t: number | undefined = undefined;
+    if (typeof payload === 'number') {
+      s = payload;
+    } else if (payload && typeof payload === 'object') {
+      s = typeof payload.score === 'number' ? payload.score : parseInt(payload.score as any) || null;
+      t = typeof payload.playTimeSeconds === 'number' ? payload.playTimeSeconds : parseInt(payload.playTimeSeconds as any) || undefined;
+    }
+
+    const query: any = {};
+    if (s !== null) query.score = String(s);
+    if (typeof t !== 'undefined') query.time = String(t);
+    router.push({ name: 'GameOver', query });
+  };
+  EventBus.on('game:over', handleGameOver);
   EventBus.on('game:finished', () => {
     destroyGameInstance();
   });
@@ -161,7 +178,7 @@ onBeforeUnmount(() => {
   EventBus.off('player:score', updateScore);
   EventBus.off('player:exp', updateExp);
   EventBus.off('player:levelup', updateLevel);
-  EventBus.off('game:over');
+  EventBus.off('game:over', handleGameOver);
   EventBus.off('game:finished');
   if (gameInstance?.destroy) gameInstance.destroy(true);
   gameInstance = null;

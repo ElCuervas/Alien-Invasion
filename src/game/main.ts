@@ -1,7 +1,7 @@
 import Phaser, { AUTO } from 'phaser';
-import { Boot } from './scenes/Boot';
-import { Preloader } from './scenes/Preloader';
-import { Game } from './scenes/Game';
+import { Boot } from '@/game/scenes/Boot';
+import { Preloader } from '@/game/scenes/Preloader';
+import { Game } from '@/game/scenes/Game';
 import { loadControlConfig } from '@/config/ControlSettings';
 
 loadControlConfig();

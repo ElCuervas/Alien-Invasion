@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { Player } from "./Player";
-import { EventBus } from "../EventBus";
+import { Player } from "@/game/objects/Player";
+import { EventBus } from "@/game/EventBus";
 
 /**
  * Clase que representa una mejora (upgrade) aplicable al jugador.
